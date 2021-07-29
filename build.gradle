@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+}
+
+group 'me.neiizun'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
+
+    maven { url 'https://mvnrepository.com/artifact/org.apache.commons/commons-lang3' }
+
+    maven { url 'https://mvnrepository.com/artifact/org.slf4j/slf4j-jdk14' }
+}
+
+configurations {
+    jarShaded
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation 'net.dv8tion:JDA:4.3.0_277'
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
+    jarShaded implementation('org.apache.commons:commons-lang3:3.12.0')
+}
+
+
+jar {
+    from {
+        configurations.jarShaded.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
