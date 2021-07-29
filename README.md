@@ -29,7 +29,7 @@ LightDrop is a lightweight library that allows you to create decorator-based com
     <dependency>
         <groupId>me.neiizun</groupId>
         <artifactId>LightDrop</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.2</version>
     </dependency>
 </dependencies>
 ```
@@ -45,7 +45,7 @@ repositories {
 ```groovy
 repositories {
     dependencies {
-        implementation 'com.github.NeiiZun:LightDrop:1.0.0'
+        implementation 'com.github.NeiiZun:LightDrop:1.0.2'
     }
 }
 ```
