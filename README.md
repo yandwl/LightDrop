@@ -79,6 +79,18 @@ new LightDrop().hook(jda)
 
 ![](images/img1.png)
 
+### Use sub commands
+```java
+public class MyCommand {
+    @Command(name = "mycommand.sub")
+    public void myCommand(CommandContext context) {
+        context.getChannel().sendMessage("Hello " + context.getAuthor().getName()).complete();
+    }
+}
+```
+You can create sub commands by typing your command with a "." and your sub commands (like mycommand.sub.othersub).
+
+If subcommand is not found, the parent command will be call (note that CommandContext will contain the not found subcommand)
 ### Add a permission
 
 ```java

@@ -5,27 +5,41 @@ import me.neiizun.lightdrop.command.CommandContext;
 import me.neiizun.lightdrop.command.MappedCommand;
 import me.neiizun.lightdrop.exceptionhandler.ExceptionHandler;
 import me.neiizun.lightdrop.exceptionhandler.MappedExceptionHandler;
-import me.neiizun.lightdrop.listeners.CommandListener;
+import me.neiizun.lightdrop.listener.CommandListener;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Message;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Predicate;
 
+/**
+ * Main class of LightDrop
+ */
 public class LightDrop {
+    private JDA jda;
     private String prefix = "!";
     private final Map<String, MappedCommand> mappedCommandMap = new HashMap<>();
     private final List<MappedExceptionHandler> mappedExceptionHandlers = new ArrayList<>();
     private final List<Predicate<CommandContext>> commandFilters = new ArrayList<>();
 
-    public LightDrop hook(JDA jdaHook) {
-        jdaHook.addEventListener(new CommandListener(this));
-        LoggerFactory.getLogger(LightDrop.class).info("Hooked into " + jdaHook.getSelfUser().getName());
+    /**
+     * Hook LightDrop to your JDA instance
+     * @param jda JDA instance
+     * @return Current LightDrop instance for chaining
+     */
+    public LightDrop hook(JDA jda) {
+        jda.addEventListener(new CommandListener(this));
+        this.jda = jda;
+        LoggerFactory.getLogger(LightDrop.class).info("Hooked into " + jda.getSelfUser().getName());
         return this;
     }
 
+    /**
+     * Map an object to load commands and exception handlers
+     * @param objects Objects to map
+     * @return Current LightDrop instance for chaining
+     */
     public LightDrop map(Object... objects) {
         Arrays.stream(objects).forEach(object -> {
             Class<?> clazz = object.getClass();
@@ -57,14 +71,16 @@ public class LightDrop {
         return this;
     }
 
+
     public MappedCommand getMappedCommand(String commandName) {
         return this.mappedCommandMap.get(commandName);
     }
 
-    public Optional<MappedCommand> findMappedCommand(String commandName) {
-        return Optional.ofNullable(this.getMappedCommand(commandName));
-    }
-
+    /**
+     * Put global filters for commands, if filter return true, the command won't be executed
+     * @param predicate
+     * @return Current LightDrop instance for chaining
+     */
     public LightDrop filter(Predicate<CommandContext>... predicate) {
         this.commandFilters.addAll(Arrays.asList(predicate));
         return this;
@@ -82,6 +98,15 @@ public class LightDrop {
         return prefix;
     }
 
+    public JDA getJda() {
+        return jda;
+    }
+
+    /**
+     * Set the prefix of the commands (default !)
+     * @param prefix The prefix
+     * @return  Current LightDrop instance for chaining
+     */
     public LightDrop setPrefix(String prefix) {
         this.prefix = prefix;
         return this;
