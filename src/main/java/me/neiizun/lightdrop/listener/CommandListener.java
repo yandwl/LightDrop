@@ -86,7 +86,7 @@ public class CommandListener extends ListenerAdapter {
                 }
 
                 try {
-                    handler.getMethod().invoke(command.getInstance(), e.getCause(), commandContext);
+                    handler.getMethod().invoke(handler.getInstance(), e.getCause(), commandContext);
                 } catch (IllegalAccessException | InvocationTargetException ex) {
                     ex.printStackTrace();
                 }
