@@ -6,18 +6,22 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Handler for exceptions thrown inside commands
+ * Handler for exceptions thrown inside commands.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface ExceptionHandler {
     /**
-     * @return List of the commands to handle (put "*" for all)
+     * List of the commands to handle (you can put a "*" for all).
+     *
+     * @return An array of commands names.
      */
     String[] commands();
 
     /**
-     * @return Handled exception (default Exception.class, so all)
+     * Handled exception (default Exception.class).
+     *
+     * @return A class of ? extends Exception.
      */
     Class<? extends Exception> exception() default Exception.class;
 }

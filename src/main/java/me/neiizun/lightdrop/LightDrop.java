@@ -14,19 +14,39 @@ import java.util.*;
 import java.util.function.Predicate;
 
 /**
- * Main class of LightDrop
+ * Main class of LightDrop.
  */
 public class LightDrop {
+    /**
+     * JDA instance.
+     */
+
     private JDA jda;
+    /**
+     * The command's prefix.
+     */
     private String prefix = "!";
+
+    /**
+     * The map of all mapped commands by name / instance.
+     */
     private final Map<String, MappedCommand> mappedCommandMap = new HashMap<>();
+
+    /**
+     * The list of all ExceptionHandlers.
+     */
     private final List<MappedExceptionHandler> mappedExceptionHandlers = new ArrayList<>();
+
+    /**
+     * The list of all filters.
+     */
     private final List<Predicate<CommandContext>> commandFilters = new ArrayList<>();
 
     /**
-     * Hook LightDrop to your JDA instance
-     * @param jda JDA instance
-     * @return Current LightDrop instance for chaining
+     * Hook LightDrop to your JDA instance.
+     *
+     * @param jda JDA instance.
+     * @return Current LightDrop instance for chaining.
      */
     public LightDrop hook(JDA jda) {
         jda.addEventListener(new CommandListener(this));
@@ -36,9 +56,10 @@ public class LightDrop {
     }
 
     /**
-     * Map an object to load commands and exception handlers
-     * @param objects Objects to map
-     * @return Current LightDrop instance for chaining
+     * Map an object to load commands and exception handlers.
+     *
+     * @param objects Objects to map.
+     * @return Current LightDrop instance for chaining.
      */
     public LightDrop map(Object... objects) {
         Arrays.stream(objects).forEach(object -> {
@@ -71,15 +92,21 @@ public class LightDrop {
         return this;
     }
 
-
+    /**
+     * Get a {@link MappedCommand} by his name from registered mapped commands.
+     *
+     * @param commandName The name of the command.
+     * @return Instance of {@link MappedCommand} or null if not found.
+     */
     public MappedCommand getMappedCommand(String commandName) {
         return this.mappedCommandMap.get(commandName);
     }
 
     /**
-     * Put global filters for commands, if filter return true, the command won't be executed
-     * @param predicate
-     * @return Current LightDrop instance for chaining
+     * Put global filters for commands, if filter return true, the command won't be executed.
+     *
+     * @param predicate A predicate of the filter.
+     * @return Current LightDrop instance for chaining.
      */
     public LightDrop filter(Predicate<CommandContext>... predicate) {
         this.commandFilters.addAll(Arrays.asList(predicate));
@@ -90,22 +117,32 @@ public class LightDrop {
         return commandFilters;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<MappedExceptionHandler> getMappedExceptionHandlers() {
         return mappedExceptionHandlers;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String getPrefix() {
         return prefix;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public JDA getJda() {
         return jda;
     }
 
     /**
-     * Set the prefix of the commands (default !)
-     * @param prefix The prefix
-     * @return  Current LightDrop instance for chaining
+     * Set the prefix of the commands (default !).
+     *
+     * @param prefix The prefix.
+     * @return Current LightDrop instance for chaining.
      */
     public LightDrop setPrefix(String prefix) {
         this.prefix = prefix;

@@ -3,6 +3,7 @@ package me.neiizun.lightdrop.listener;
 import me.neiizun.lightdrop.LightDrop;
 import me.neiizun.lightdrop.command.CommandContext;
 import me.neiizun.lightdrop.command.MappedCommand;
+import me.neiizun.lightdrop.exceptionhandler.MappedExceptionHandler;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -16,8 +17,16 @@ import java.util.stream.IntStream;
  * Middleware listener for parsing
  */
 public class CommandListener extends ListenerAdapter {
+    /**
+     * Instance of LightDrop.
+     */
     private final LightDrop lightdrop;
 
+    /**
+     * Create new CommandListener.
+     *
+     * @param lightdrop Instance of LightDrop.
+     */
     public CommandListener(LightDrop lightdrop) {
         this.lightdrop = lightdrop;
     }
@@ -25,11 +34,15 @@ public class CommandListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 
-        if (event.getAuthor().equals(lightdrop.getJda().getSelfUser())) return;
+        if (event.getAuthor().equals(lightdrop.getJda().getSelfUser())) {
+            return;
+        }
 
         String message = event.getMessage().getContentRaw();
 
-        if (!message.startsWith(lightdrop.getPrefix())) return;
+        if (!message.startsWith(lightdrop.getPrefix())) {
+            return;
+        }
 
         String[] args = message.split(" ");
 
@@ -46,13 +59,16 @@ public class CommandListener extends ListenerAdapter {
             }
         }
 
-        if (command == null) return;
+        if (command == null) {
+            return;
+        }
 
         CommandContext commandContext = new CommandContext(command, event.getTextChannel(), event.getAuthor(),
-                event.getMessage(), ArrayUtils.removeAll(args, IntStream.range(0, command.getNameLength()).toArray()));
+                event.getMessage(), ArrayUtils.removeAll(args, IntStream.range(0, command.getNameLength()).toArray()), lightdrop);
 
-        if (lightdrop.getCommandFilters().stream().anyMatch(filter -> filter.test(commandContext)))
+        if (lightdrop.getCommandFilters().stream().anyMatch(filter -> filter.test(commandContext))) {
             return;
+        }
 
         String permission = command.getPermission();
 
@@ -64,19 +80,17 @@ public class CommandListener extends ListenerAdapter {
         try {
             command.getMethod().invoke(command.getInstance(), commandContext);
         } catch (InvocationTargetException | IllegalAccessException e) {
-            String finalCommandName = command.getName();
+            for (MappedExceptionHandler handler : lightdrop.getMappedExceptionHandlers()) {
+                if (!handler.canHandle(command.getName()) || !handler.getExceptionClass().isAssignableFrom(e.getCause().getClass())) {
+                    continue;
+                }
 
-            lightdrop.getMappedExceptionHandlers().stream()
-                    .filter(handler -> handler.canHandle(finalCommandName)
-                            && handler.getExceptionClass().isAssignableFrom(e.getCause().getClass()))
-
-                    .forEach(handler -> {
-                        try {
-                            handler.getMethod().invoke(handler.getInstance(), e, commandContext);
-                        } catch (IllegalAccessException | InvocationTargetException ex) {
-                            ex.printStackTrace();
-                        }
-                    });
+                try {
+                    handler.getMethod().invoke(command.getInstance(), e.getCause(), commandContext);
+                } catch (IllegalAccessException | InvocationTargetException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
     }
 }

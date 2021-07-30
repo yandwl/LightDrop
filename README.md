@@ -1,14 +1,14 @@
 # ? LightDrop
 
-LightDrop is a lightweight library that allows you to create decorator-based commands with <a href="https://github.com/DV8FromTheWorld/JDA">JDA</a>
+LightDrop is a lightweight library that allows you to create decorator-based commands with <a href="https://github.com/DV8FromTheWorld/JDA">JDA</a>.
 
 ## Features
 
 <ul>
-    <li>Creating commands in a method</li>
-    <li>Adding permissions and permission message</li>
-    <li>Catch exceptions from commands</li>
-    <li>Adding global filters to the command's middleware</li>
+    <li>Creating commands in a method.</li>
+    <li>Adding permissions and permission message.</li>
+    <li>Catch exceptions from commands.</li>
+    <li>Adding global filters to the command's middleware.</li>
 </ul>
 
 ## Installation
@@ -29,7 +29,7 @@ LightDrop is a lightweight library that allows you to create decorator-based com
     <dependency>
         <groupId>me.neiizun</groupId>
         <artifactId>LightDrop</artifactId>
-        <version>1.1.0</version>
+        <version>latest</version> <!--Replace with the latest version.-->
     </dependency>
 </dependencies>
 ```
@@ -45,7 +45,7 @@ repositories {
 ```groovy
 repositories {
     dependencies {
-        implementation 'com.github.NeiiZun:LightDrop:1.1.0'
+        implementation 'com.github.NeiiZun:LightDrop:latest' // Replace with the latest version.
     }
 }
 ```
@@ -90,7 +90,7 @@ public class MyCommand {
 ```
 You can create sub commands by typing your command with a "." and your sub commands (like mycommand.sub.othersub).
 
-If subcommand is not found, the parent command will be call (note that CommandContext will contain the not found subcommand)
+If subcommand is not found, the parent command will be call (note that CommandContext will contain the not found subcommand).
 ### Add a permission
 
 ```java
@@ -111,7 +111,7 @@ new LightDrop().hook(jda)
     .map(new MyCommand())
     .setPrefix("&");
 ```
-(Default prefix is "!")
+(Default prefix is "!").
 
 ### Use filters
 ```java
