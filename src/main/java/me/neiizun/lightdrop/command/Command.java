@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * Command annotation for creating commands.
+ *
+ * @since 1.0.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

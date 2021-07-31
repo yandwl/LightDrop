@@ -1,12 +1,17 @@
 package me.neiizun.lightdrop;
 
+import me.neiizun.lightdrop.automapping.AutoMapping;
 import me.neiizun.lightdrop.command.Command;
 import me.neiizun.lightdrop.command.CommandContext;
 import me.neiizun.lightdrop.command.MappedCommand;
+import me.neiizun.lightdrop.exception.MappingException;
 import me.neiizun.lightdrop.exceptionhandler.ExceptionHandler;
 import me.neiizun.lightdrop.exceptionhandler.MappedExceptionHandler;
 import me.neiizun.lightdrop.listener.CommandListener;
+import me.neiizun.lightdrop.store.StoreCluster;
+import me.neiizun.lightdrop.util.ReflectionsUtil;
 import net.dv8tion.jda.api.JDA;
+import org.reflections8.Reflections;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
@@ -15,13 +20,15 @@ import java.util.function.Predicate;
 
 /**
  * Main class of LightDrop.
+ *
+ * @since 1.0.0
  */
 public class LightDrop {
     /**
      * JDA instance.
      */
-
     private JDA jda;
+
     /**
      * The command's prefix.
      */
@@ -43,6 +50,11 @@ public class LightDrop {
     private final List<Predicate<CommandContext>> commandFilters = new ArrayList<>();
 
     /**
+     * Instance of store holder.
+     */
+    private final StoreCluster storeCluster = new StoreCluster();
+
+    /**
      * Hook LightDrop to your JDA instance.
      *
      * @param jda JDA instance.
@@ -51,7 +63,7 @@ public class LightDrop {
     public LightDrop hook(JDA jda) {
         jda.addEventListener(new CommandListener(this));
         this.jda = jda;
-        LoggerFactory.getLogger(LightDrop.class).info("Hooked into " + jda.getSelfUser().getName());
+        LoggerFactory.getLogger(LightDrop.class).info("Instance hooked into bot " + jda.getSelfUser().getName());
         return this;
     }
 
@@ -65,27 +77,56 @@ public class LightDrop {
         Arrays.stream(objects).forEach(object -> {
             Class<?> clazz = object.getClass();
 
-            for (Method method : clazz.getMethods()) {
+
+            for (Method method : ReflectionsUtil.getMethodsAnnotatedWith(clazz, Command.class)) {
                 Command command = method.getAnnotation(Command.class);
 
-                if (command != null) {
-                    if(!mappedCommandMap.containsKey(command.name())) {
+                if (!mappedCommandMap.containsKey(command.name().toLowerCase())) {
 
-                        mappedCommandMap.put(command.name(), new MappedCommand(object, command.name(),
-                                command.permission(), command.permissionMessage(), method));
-
-                        LoggerFactory.getLogger(LightDrop.class).info("Command '" + command.name() + "' mapped from " + clazz.getName());
-                    } else {
-                        LoggerFactory.getLogger(LightDrop.class).error("Command '" + command.name() + "' is already mapped");
+                    if(command.name().contains(" ")) {
+                        throw new MappingException("Command names can't contain spaces at " + clazz.getName());
                     }
+
+                    mappedCommandMap.put(command.name().toLowerCase(), new MappedCommand(object, command.name(),
+                            command.permission(), command.permissionMessage(), method));
+
+                    LoggerFactory.getLogger(LightDrop.class).info("Command '" + command.name() + "' mapped from " + clazz.getName());
                 } else {
-                    ExceptionHandler exceptionhandler = method.getAnnotation(ExceptionHandler.class);
-
-                    if(exceptionhandler != null) {
-                        mappedExceptionHandlers.add(new MappedExceptionHandler(exceptionhandler.commands(), object, method, exceptionhandler.exception()));
-                        LoggerFactory.getLogger(LightDrop.class).info("New ExceptionHandler mapped from " + clazz.getName());
-                    }
+                    throw new MappingException("Command " + command.name() + " already mapped");
                 }
+            }
+
+            for (Method method : ReflectionsUtil.getMethodsAnnotatedWith(clazz, ExceptionHandler.class)) {
+                ExceptionHandler exceptionhandler = method.getAnnotation(ExceptionHandler.class);
+
+                if(exceptionhandler != null) {
+                    mappedExceptionHandlers.add(new MappedExceptionHandler(exceptionhandler.commands(), object, method, exceptionhandler.exception()));
+                    LoggerFactory.getLogger(LightDrop.class).info("New ExceptionHandler mapped from " + clazz.getName());
+                }
+            }
+        });
+
+        return this;
+    }
+
+    /**
+     * Enable autoMapping for automatically mapping all classes of specified package and subpackage.
+     * @param mappingPackage Parent package for searching.
+     * @return LightDrop instance for chaining.
+     */
+    public LightDrop enableAutoMapping(String mappingPackage) {
+        LoggerFactory.getLogger(LightDrop.class).info("AutoMapping enabled");
+        Set<Class<?>> classes = new Reflections(mappingPackage).getTypesAnnotatedWith(AutoMapping.class);
+
+        classes.forEach(clazz -> {
+            if (!ReflectionsUtil.hasNoArgConstructor(clazz)) {
+                throw new MappingException("Classes annotated with @AutoMapping should have a no-args constructor at " + clazz.getPackage());
+            }
+
+            try {
+                map(clazz.newInstance());
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
             }
         });
 
@@ -99,7 +140,7 @@ public class LightDrop {
      * @return Instance of {@link MappedCommand} or null if not found.
      */
     public MappedCommand getMappedCommand(String commandName) {
-        return this.mappedCommandMap.get(commandName);
+        return this.mappedCommandMap.get(commandName.toLowerCase());
     }
 
     /**
@@ -113,6 +154,9 @@ public class LightDrop {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<Predicate<CommandContext>> getCommandFilters() {
         return commandFilters;
     }
@@ -147,5 +191,9 @@ public class LightDrop {
     public LightDrop setPrefix(String prefix) {
         this.prefix = prefix;
         return this;
+    }
+
+    public StoreCluster getStoreCluster() {
+        return storeCluster;
     }
 }

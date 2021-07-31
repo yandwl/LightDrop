@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * Handler for exceptions thrown inside commands.
+ *
+ * @since 1.0.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

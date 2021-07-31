@@ -3,7 +3,9 @@ package me.neiizun.lightdrop.command;
 import java.lang.reflect.Method;
 
 /**
- * Mapped command from annotation
+ * Mapped command from annotation.
+ *
+ * @since 1.0.0
  */
 public class MappedCommand {
     /**

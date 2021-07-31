@@ -14,7 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.stream.IntStream;
 
 /**
- * Middleware listener for parsing
+ * Middleware listener for parsing.
+ *
+ * @since 1.0.0
  */
 public class CommandListener extends ListenerAdapter {
     /**

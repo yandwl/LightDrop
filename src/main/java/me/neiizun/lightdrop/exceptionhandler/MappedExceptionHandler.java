@@ -6,6 +6,8 @@ import java.util.List;
 
 /**
  * Mapped version of ExceptionHandler annotation.
+ *
+ * @since 1.0.0
  */
 public class MappedExceptionHandler {
     /**

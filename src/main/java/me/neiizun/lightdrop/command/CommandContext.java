@@ -1,12 +1,15 @@
 package me.neiizun.lightdrop.command;
 
 import me.neiizun.lightdrop.LightDrop;
+import me.neiizun.lightdrop.store.Store;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 /**
  * Context of the command, passed when called.
+ *
+ * @since 1.0.0
  */
 public class CommandContext {
     /**
@@ -98,5 +101,14 @@ public class CommandContext {
      */
     public LightDrop getLightdrop() {
         return lightdrop;
+    }
+
+    /**
+     * Shortcut to get a store from current {@link me.neiizun.lightdrop.store.StoreCluster}.
+     * @param name Name of the store.
+     * @return Store instance of null if not present.
+     */
+    public Store getStore(String name) {
+        return lightdrop.getStoreCluster().getStore(name);
     }
 }
