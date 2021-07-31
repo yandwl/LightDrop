@@ -99,11 +99,22 @@ public class Store {
     }
 
     /**
-     * Read a Object from store.
+     * Read an Object from store.
+     *
      * @param key Identifier of the data.
      * @return Object data.
      */
     public Object readObject(String key) {
-        return this.objectMap.get(key);
+        return objectMap.get(key);
+    }
+
+    /**
+     * Check if store contains a data.
+     *
+     * @param key Identifier of the data.
+     * @return true if store contains the data.
+     */
+    public boolean contains(String key) {
+        return objectMap.containsKey(key);
     }
 }
