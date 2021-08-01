@@ -77,31 +77,26 @@ public class LightDrop {
         Arrays.stream(objects).forEach(object -> {
             Class<?> clazz = object.getClass();
 
-
-            for (Method method : ReflectionsUtil.getMethodsAnnotatedWith(clazz, Command.class)) {
+            for (Method method : clazz.getMethods()) {
                 Command command = method.getAnnotation(Command.class);
 
-                if (!mappedCommandMap.containsKey(command.name().toLowerCase())) {
+                if (command != null) {
+                    if (!mappedCommandMap.containsKey(command.name())) {
 
-                    if(command.name().contains(" ")) {
-                        throw new MappingException("Command names can't contain spaces at " + clazz.getName());
+                        mappedCommandMap.put(command.name(), new MappedCommand(object, command.name(),
+                                command.permission(), command.permissionMessage(), method));
+
+                        LoggerFactory.getLogger(LightDrop.class).info("Command '" + command.name() + "' mapped from " + clazz.getName());
+                    } else {
+                        throw new MappingException("Command " + command.name() + " is already mapped");
                     }
-
-                    mappedCommandMap.put(command.name().toLowerCase(), new MappedCommand(object, command.name(),
-                            command.permission(), command.permissionMessage(), method));
-
-                    LoggerFactory.getLogger(LightDrop.class).info("Command '" + command.name() + "' mapped from " + clazz.getName());
                 } else {
-                    throw new MappingException("Command " + command.name() + " already mapped");
-                }
-            }
+                    ExceptionHandler exceptionhandler = method.getAnnotation(ExceptionHandler.class);
 
-            for (Method method : ReflectionsUtil.getMethodsAnnotatedWith(clazz, ExceptionHandler.class)) {
-                ExceptionHandler exceptionhandler = method.getAnnotation(ExceptionHandler.class);
-
-                if(exceptionhandler != null) {
-                    mappedExceptionHandlers.add(new MappedExceptionHandler(exceptionhandler.commands(), object, method, exceptionhandler.exception()));
-                    LoggerFactory.getLogger(LightDrop.class).info("New ExceptionHandler mapped from " + clazz.getName());
+                    if (exceptionhandler != null) {
+                        mappedExceptionHandlers.add(new MappedExceptionHandler(exceptionhandler.commands(), object, method, exceptionhandler.exception()));
+                        LoggerFactory.getLogger(LightDrop.class).info("New ExceptionHandler mapped from " + clazz.getName());
+                    }
                 }
             }
         });

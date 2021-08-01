@@ -28,15 +28,4 @@ public class ReflectionsUtil {
 
         return false;
     }
-
-    /**
-     * Get a Set of methods having a certain annotation.
-     *
-     * @param clazz           The clazz to loop through.
-     * @param annotationClass The class of the annotation to find.
-     * @return {@link Set<Method>} of specified annotated classes.
-     */
-    public static Set<Method> getMethodsAnnotatedWith(Class<?> clazz, Class<? extends Annotation> annotationClass) {
-        return new Reflections(clazz, new MethodAnnotationsScanner()).getMethodsAnnotatedWith(annotationClass);
-    }
 }
