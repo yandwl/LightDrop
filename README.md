@@ -63,7 +63,7 @@ new LightDrop().hook(jda);
 
 ```java
 public class MyCommand {
-    @me.neiizun.test.Command(name = "mycommand")
+    @Command(name = "mycommand")
     public void myCommand(CommandContext context) {
         context.getChannel().sendMessage("Hello " + context.getAuthor().getName()).complete();
     }
